@@ -1,0 +1,354 @@
+﻿@model DadosTempo
+@{
+    ViewData["Title"] = "Previsão do Tempo";
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5b8def;
+            --secondary-color: #4361ee;
+            --accent-color: #3f37c9;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --error-color: #e63946;
+            --success-color: #2a9d8f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container-center {
+            width: 100%;
+            max-width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .weather-app {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            margin: 0 auto;
+        }
+
+        .app-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+            .app-header h1 {
+                font-size: 1.8rem;
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+
+        .search-form {
+            display: flex;
+            margin: 20px;
+            position: relative;
+        }
+
+            .search-form input[type="text"] {
+                flex: 1;
+                padding: 15px 20px;
+                border: none;
+                background: #f0f2f5;
+                border-radius: 50px;
+                font-size: 1rem;
+                box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+            }
+
+                .search-form input[type="text"]:focus {
+                    outline: none;
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.3);
+                }
+
+            .search-form button {
+                position: absolute;
+                right: 5px;
+                top: 5px;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: 50px;
+                width: 45px;
+                height: 45px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+                .search-form button:hover {
+                    background: var(--accent-color);
+                }
+
+        .erro {
+            color: var(--error-color);
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        .weather-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .city-name {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+
+        .weather-icon {
+            font-size: 5rem;
+            margin: 15px 0;
+            color: var(--primary-color);
+        }
+
+        .temperature {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-icon {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #666;
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                color: var(--primary-color);
+                margin-bottom: 15px;
+            }
+
+            .empty-state p {
+                font-size: 1.1rem;
+            }
+        .weather-app {
+            width: min(500px, 95%);
+        }
+
+        .app-header h1 {
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+        }
+
+        .city-name {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+        }
+
+        .temperature {
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+        }
+
+        .weather-icon {
+            font-size: clamp(4rem, 10vw, 5rem);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-center">
+        <div class="weather-app">
+            <div class="app-header">
+                <h1>Previsão do Tempo</h1>
+                <p>Descubra o clima em qualquer cidade</p>
+            </div>
+
+            <form class="search-form" method="get">
+                <input type="text" name="cidade" placeholder="Digite o nome da cidade" required value="@(Context.Request.Query["cidade"])" />
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+
+            @if (ViewBag.MensagemErro != null)
+            {
+                <p class="erro"><i class="fas fa-exclamation-circle"></i> @ViewBag.MensagemErro</p>
+            }
+
+            @if (Model != null)
+            {
+                <div class="weather-info">
+                    <h2 class="city-name">@Model.Cidade</h2>
+
+                    @{
+                        var iconClass = "fas fa-cloud";
+
+                        if (Model.Condicao != null)
+                        {
+                            var condicao = Model.Condicao.ToLower();
+
+                            if (condicao.Contains("sol") || condicao.Contains("limpo") || condicao.Contains("claro"))
+                            {
+                                iconClass = "fas fa-sun";
+                            }
+                            else if (condicao.Contains("chuva") || condicao.Contains("chuvoso"))
+                            {
+                                iconClass = "fas fa-cloud-rain";
+                            }
+                            else if (condicao.Contains("nublado") || condicao.Contains("nuvens"))
+                            {
+                                iconClass = "fas fa-cloud";
+                            }
+                            else if (condicao.Contains("tempestade") || condicao.Contains("trovoada"))
+                            {
+                                iconClass = "fas fa-bolt";
+                            }
+                            else if (condicao.Contains("neve") || condicao.Contains("nevando"))
+                            {
+                                iconClass = "fas fa-snowflake";
+                            }
+                        }
+                    }
+
+                    <div class="weather-icon">
+                        <i class="@iconClass"></i>
+                    </div>
+
+                    <div class="temperature">@Model.Temperatura°C</div>
+                    <p class="condition">@Model.Condicao</p>
+
+                    <div class="weather-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <span class="detail-label">Umidade</span>
+                            <span class="detail-value">@Model.Umidade%</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-wind"></i>
+                            </div>
+                            <span class="detail-label">Vento</span>
+                            <span class="detail-value">@Model.Velocidade km/h</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-compass"></i>
+                            </div>
+                            <span class="detail-label">Sensação</span>
+                            @{
+                                int tempSensacao;
+                                if (int.TryParse(Model.Temperatura, out tempSensacao))
+                                {
+                                    <span class="detail-value">@(tempSensacao - 2)°C</span>
+                                }
+                                else
+                                {
+                                    <span class="detail-value">@Model.Temperatura°C</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-cloud-sun"></i>
+                    <p>Pesquise por uma cidade para ver a previsão do tempo</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+        function adjustLayoutForSmallScreens() {
+            const weatherDetails = document.querySelector('.weather-details');
+            if (!weatherDetails) return;
+
+            if (window.innerWidth <= 576) {
+                weatherDetails.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            }
+
+            if (window.innerWidth <= 400) {
+                weatherDetails.style.gridTemplateColumns = '1fr';
+            }
+
+            if (window.innerWidth > 576) {
+                weatherDetails.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            }
+        }
+
+        window.addEventListener('load', adjustLayoutForSmallScreens);
+        window.addEventListener('resize', adjustLayoutForSmallScreens);
+    </script>
+</body>
+</html>
